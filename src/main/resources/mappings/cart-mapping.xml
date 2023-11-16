@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="CartMapper">
+
+	<!-- 장바구니 담기 -->
+	<insert id="insertCart">
+		INSERT INTO cart(cseq, id, pseq, quantity)
+		VALUES (cart_seq.nextval, #{id}, #{pseq}, #{quantity})	
+	</insert>
+	
+	<!-- 장바구니 목록 -->
+	<select id="listCart" resultType="cart">
+		SELECT * FROM cart_view WHERE id =#{id}
+	</select>
+	
+	<!-- 장바구니 취소 -->
+	<delete id="deleteCart">
+		DELETE cart WHERE cseq=#{cseq}
+	</delete>	
+	
+	<!--  장바구니 처리 결과 갱신 -->
+	<update id="updateCart">
+		UPDATE cart SET result='2'
+		WHERE cseq=#{cseq}
+	</update>
+  
+</mapper>

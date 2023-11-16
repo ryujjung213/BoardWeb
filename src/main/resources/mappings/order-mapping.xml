@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="OrderMapper">
+	<!-- 주문 번호 생성 -->
+	<select id="selectMaxOseq" resultType="int">
+		SELECT NVL2(MAX(oseq),
+		MAX(oseq)+1, 1) FROM orders
+	</select>
+
+	<!-- 새로 주문 생성 -->
+	<insert id="insertOrder">
+		INSERT INTO orders(oseq, id) VALUES(#{oseq}, #{id})
+	</insert>
+
+	<!-- 주문 상세정보 생성 -->
+	<insert id="insertOrderDetail">
+		INSERT INTO order_detail(odseq, oseq, pseq, quantity)
+		VALUES (order_detail_seq.NEXTVAL, #{oseq}, #{pseq}, #{quantity})
+	</insert>
+
+	<!-- 사용자별 주문내역 조회(장바구니에서 주문한 내역) -->
+	<select id="listOrderById" resultType="order">
+		SELECT * FROM order_view
+		WHERE id =#{id}
+		AND oseq=#{oseq}
+		AND result LIKE '%'||#{result}||'%'
+		ORDER BY oseq DESC
+	</select>
+
+	<!-- 사용자별 미처리 주문 내역 조회 -->
+	<select id="selectSeqOrdering" resultType="int">
+		SELECT distinct oseq
+		FROM order_view
+		WHERE id=#{id} AND result LIKE '%'||#{result}||'%'
+		ORDER BY oseq DESC
+	</select>
+
+	<!-- 주문 조회 -->
+	<select id="listOrder" resultType="order">
+		SELECT * FROM order_view
+		WHERE
+		mname LIKE '%'||#{mname}||'%'
+		ORDER BY result, oseq ASC
+	</select>
+
+	<!-- 주문 상태 -->
+	<update id="updateOrderResult">
+		UPDATE order_detail
+		SET result='2'
+		WHERE odseq=#{odseq}
+	</update>
+
+	<!-- 주문 목록의 전체 갯수 조회 -->
+	<select id="countOrderList">
+		SELECT COUNT(*) FROM order_view
+		WHERE mname LIKE '%'||#{manme}||'%'
+		ORDER BY result, oseq ASC
+	</select>
+
+	<!-- 페이지별 주문 목록 조회 -->
+	<!-- hashMap : 전달할 파라미터가 복수 개인 경우 사용 -->
+	<select id="listOrderWithPaging" parameterType="hashMap"
+		resultType="order">
+		<![CDATA[
+		SELECT rn, odseq, oseq, id, indate, mname, zip_num, address, phone, pseq, quantity, price2, result
+			FROM  (SELECT row_number() OVER (ORDER BY result, odseq) rn, odseq, oseq, id,
+						indate, mname, zip_num, address, phone, pseq, quantity, price2, result
+						FROM order_view
+						WHERE mname LIKE '%'||#{name}||'%')
+		WHERE rn >= (#{criteria.pageNum} -1) * #{criteria.rowsPerPage} 
+		AND rn <=#{criteria.pageNum} * #{criteria.rowsPerPage}
+		]]>
+	</select>
+	
+	
+
+
+</mapper>

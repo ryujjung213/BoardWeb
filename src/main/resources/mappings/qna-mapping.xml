@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="QnaMapper">
+
+	<!-- 회원별 QnA 목록을 조회 -->
+	<select id="listQna" resultType="qna">
+		SELECT * FROM qna WHERE id=#{id} ORDER BY qseq DESC
+	</select>
+
+	<!-- QnA 상세 조회 -->
+	<select id="getQna" resultType="qna">
+		SELECT * FROM qna WHERE qseq = #{qseq}
+	</select>
+
+	<!-- QnA 게시글 등록 -->
+	<insert id="insertQna">
+    INSERT INTO qna(qseq, subject, content, id)
+    VALUES (qna_seq.nextval, #{subject}, #{content}, #{id})
+</insert>
+
+</mapper>
